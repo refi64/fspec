@@ -28,7 +28,8 @@ class Fspec {
     fun shouldnt[T](x: Expector[T]) => Shouldnt x;
 
     proc dstatus() =>
-        eprint$ if status then "\x1b[32m.\x1b[0m" else "\x1b[31mF\x1b[0m" endif;
+        eprint$ if status then AnsiTerminal::green_ "."
+                else AnsiTerminal::red_ "F" endif;
 
     proc error(msg: string) {
         var indent = 0;
@@ -58,7 +59,7 @@ class Fspec {
         describes = describes.tail;
         if describes.is_empty do
             eprintln "";
-            for msg in msgs perform eprintln$ "\x1b[31m" + msg + "\x1b[0m";
+            for msg in msgs perform eprintln$ AnsiTerminal::red_ msg;
         done
     }
     proc it(s: string)(f: 1->0) {
