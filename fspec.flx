@@ -33,7 +33,7 @@ class Fspec {
     fun should[T](x: Expector[T]) => Should x;
     fun shouldnt[T](x: Expector[T]) => Shouldnt x;
 
-    proc dstatus() => eprint$ if status then green "." else red "F" endif;
+    private proc dstatus() => eprint$ if status then green "." else red "F" endif;
 
     proc error(msg: string) {
         var indent = 0;
