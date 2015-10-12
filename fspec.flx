@@ -4,6 +4,12 @@ class Fspec {
     private var msgs = #list[string];
     private var status = true;
 
+    private fun isatty: ofile -> bool = "flx::rtl::ioutil::flx_isatty($1)";
+    private fun red(text: string) =>
+        if stdout.isatty then AnsiTerminal::red_ text else text endif;
+    private fun green(text: string) =>
+        if stdout.isatty then AnsiTerminal::green_ text else text endif;
+
     private struct Expector[T] { value: T; }
     fun expects[T with Str[T]](x: T) => Expector x;
 
@@ -27,9 +33,7 @@ class Fspec {
     fun should[T](x: Expector[T]) => Should x;
     fun shouldnt[T](x: Expector[T]) => Shouldnt x;
 
-    proc dstatus() =>
-        eprint$ if status then AnsiTerminal::green_ "."
-                else AnsiTerminal::red_ "F" endif;
+    proc dstatus() => eprint$ if status then green "." else red "F" endif;
 
     proc error(msg: string) {
         var indent = 0;
@@ -59,7 +63,7 @@ class Fspec {
         describes = describes.tail;
         if describes.is_empty do
             eprintln "";
-            for msg in msgs perform eprintln$ AnsiTerminal::red_ msg;
+            for msg in msgs perform msg.red.eprintln;
         done
     }
     proc it(s: string)(f: 1->0) {
