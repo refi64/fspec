@@ -1,0 +1,29 @@
+include 'fspec';
+
+// A simple Fspec example
+
+open Fspec;
+
+describe "int" {
+    describe "+" {
+        it "adds numbers" {
+            (2+2).expects.should.eq 5; // this should fail
+            (2+2).expects.shouldnt.eq 5;
+        };
+
+        it "handles identity" {
+            (1+0).expects.should.eq 1;
+        };
+    };
+
+    describe "-" {
+        it "subtracts numbers" {
+            (5-3).expects.should.eq 2;
+            (5-3).expects.shouldnt.eq 3;
+        };
+
+        it "handles identity" {
+            (5-0).expects.should.eq 5;
+        };
+    };
+};

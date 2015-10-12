@@ -1,0 +1,74 @@
+class Fspec {
+    private var describes = #list[string];
+    private var its = None[string];
+    private var msgs = #list[string];
+    private var status = true;
+
+    private struct Expector[T] { value: T; }
+    fun expects[T with Str[T]](x: T) => Expector x;
+
+    private union Modifier[T] =
+        | Should of Expector[T]
+        | Shouldnt of Expector[T]
+    ;
+    private fun v[T](m: Modifier[T]) => match m with
+        | Should x => x.value
+        | Shouldnt x => x.value
+    endmatch;
+    private fun bapply[T](m: Modifier[T])(b: bool) => match m with
+        | Should _ => b
+        | Shouldnt _ => not b
+    endmatch;
+    private fun str[T with Str[T]](m: Modifier[T]) => match m with
+        | Should x => x.value.str + " should"
+        | Shouldnt x => x.value.str + " shouldn't"
+    endmatch;
+
+    fun should[T](x: Expector[T]) => Should x;
+    fun shouldnt[T](x: Expector[T]) => Shouldnt x;
+
+    proc dstatus() =>
+        eprint$ if status then "\x1b[32m.\x1b[0m" else "\x1b[31mF\x1b[0m" endif;
+
+    proc error(msg: string) {
+        var indent = 0;
+        var m = "";
+        gen id() = {
+            i := indent;
+            ++indent;
+            return "  "*i;
+        }
+
+        for x in describes perform m += #id + "describes " + x + "\n";
+        for x in its perform m += #id + "it " + x + "\n";
+        m += #id + msg;
+        msgs = m + msgs;
+        status = false;
+    }
+
+    private proc basic_cmp[T](x: Modifier[T], rhs: T, f: 1->bool, err: string) =>
+        if not x.bapply #f perform error$ f"%S %S %S" (x.str, err, rhs.str);
+
+    proc eq[T with Eq[T]](x: Modifier[T])(rhs: T) =>
+        basic_cmp (x, rhs, { x.v == rhs },  "eq");
+
+    proc describe(descr: string)(f: 1->0) {
+        describes = descr + describes;
+        #f;
+        describes = describes.tail;
+        if describes.is_empty do
+            eprintln "";
+            for msg in msgs perform eprintln$ "\x1b[31m" + msg + "\x1b[0m";
+        done
+    }
+    proc it(s: string)(f: 1->0) {
+        for x in its perform
+            eprintln$ "WARNING: it is already " + x + "; redefining it to " + s;
+        orig := its;
+        its = Some s;
+        #f;
+        its = orig;
+        dstatus;
+        status = true;
+    }
+}

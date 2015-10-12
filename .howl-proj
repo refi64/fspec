@@ -1,0 +1,4 @@
+fspec.flx
+tst.flx
+!:
+howl.config.project_build_command = 'bootflx tst.flx'
