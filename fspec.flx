@@ -55,7 +55,7 @@ class Fspec {
         if not x.bapply #f perform error$ f"%S %S %S" (x.str, err, rhs.str);
 
     proc eq[T with Eq[T]](x: Modifier[T])(rhs: T) =>
-        basic_cmp (x, rhs, { x.v == rhs },  "eq");
+        basic_cmp (x, rhs, { x.v == rhs }, "eq");
 
     proc describe(descr: string)(f: 1->0) {
         describes = descr + describes;
@@ -68,7 +68,7 @@ class Fspec {
     }
     proc it(s: string)(f: 1->0) {
         for x in its perform
-            eprintln$ "WARNING: it is already " + x + "; redefining it to " + s;
+            eprintln$ f"WARNING: it is already %S; redefining it to %S" (x, s);
         orig := its;
         its = Some s;
         #f;
