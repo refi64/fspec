@@ -25,13 +25,19 @@ class Fspec {
         | Should _ => b
         | Shouldnt _ => not b
     endmatch;
-    private fun str[T with Str[T]](m: Modifier[T]) => match m with
-        | Should x => x.value.str + ' should'
-        | Shouldnt x => x.value.str + " shouldn't"
-    endmatch;
+    private fun repr[T with Repr[T]](m: Modifier[T]) => match m with
+            | Should x => x.value.xrepr + ' should'
+            | Shouldnt x => x.value.xrepr + " shouldn't"
+        endmatch;
 
     fun should[T](x: Expector[T]) => Should x;
     fun shouldnt[T](x: Expector[T]) => Shouldnt x;
+
+    private fun xrepr(x: string) => repr$ match split_first (x, '\n') with
+        | #None      => x
+        | Some (l,_) => l+'...'
+    endmatch;
+    private fun xrepr[T](x: T) => x.repr;
 
     private proc dstatus() => eprint$ if status then green '.' else red 'F' endif;
 
@@ -52,7 +58,7 @@ class Fspec {
     }
 
     private proc basic_cmp[T](x: Modifier[T], rhs: T, f: 1->bool, err: string) =>
-        if not x.bapply #f perform error$ f"%S %S %S" (x.str, err, rhs.str);
+        if not x.bapply #f perform error$ f"%S %S %S" (x.repr, err, rhs.xrepr);
 
     proc eq[T with Eq[T]](x: Modifier[T])(rhs: T) =>
         basic_cmp (x, rhs, { x.v == rhs }, 'eq');

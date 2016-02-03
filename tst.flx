@@ -27,3 +27,11 @@ describe "int" {
         };
     };
 };
+
+describe "string" {
+    describe "+" {
+        it "adds things" {
+            ('a\nb'+'b').expects.should.eq 'ac'; // This should also fail.
+        };
+    };
+};
